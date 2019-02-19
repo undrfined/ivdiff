@@ -1,6 +1,5 @@
 import requests
 import re
-import json
 from lxml import etree
 from io import StringIO
 import difflib
@@ -18,12 +17,12 @@ def getHtml(domain, cookies, url, templateNumber):
     hash = re.search("contest\\?hash=(.*?)\",", str(r.content)).group(1)
 
     r = requests.post("https://instantview.telegram.org/api/contest", cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templateNumber, rules="", random_id=""))
-    random_id = json.loads(r.content)["random_id"]
+    random_id = r.json()["random_id"]
 
     final = ""
     while "result_doc_url" not in final:
         r = requests.post("https://instantview.telegram.org/api/contest", cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templateNumber, rules="", random_id=random_id))
-        final = json.loads(r.content)
+        final = r.json()
 
     random_id = final["random_id"]
     u = final["result_doc_url"]

@@ -10,18 +10,34 @@ from urllib.parse import urlparse
 from http.cookies import SimpleCookie
 
 
-def getHtml(domain, cookies, url, templateNumber):
-    d = "https://instantview.telegram.org/contest/{}/template{}".format(domain, str(templateNumber))
+def getHtml(domain, cookies, url, template):
+    rules = ""
+    try:
+        templNumber = str(int(template))
+        contest = "contest"
+    except ValueError:
+        la = open(template, "r", encoding='utf8')
+        rules = str(la.read())
+        la.close()
+        contest = "my"
+        templNumber = ""
+
+    if contest == "my":
+        d = "https://instantview.telegram.org/{}/{}".format(contest, domain)
+    else:
+        d = "https://instantview.telegram.org/{}/{}/template{}".format(contest, domain, templNumber)
     r = requests.get(d, cookies=cookies, params=dict(url=url))
 
-    hash = re.search("contest\\?hash=(.*?)\",", str(r.content)).group(1)
+    hash = re.search("{}\\?hash=(.*?)\",".format(contest), str(r.content)).group(1)
 
-    r = requests.post("https://instantview.telegram.org/api/contest", cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templateNumber, rules="", random_id=""))
+    rules = rules.encode('utf-8')
+
+    r = requests.post("https://instantview.telegram.org/api/{}".format(contest), cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templNumber, rules=rules, random_id=""))
     random_id = r.json()["random_id"]
 
     final = ""
     while "result_doc_url" not in final:
-        r = requests.post("https://instantview.telegram.org/api/contest", cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templateNumber, rules="", random_id=random_id))
+        r = requests.post("https://instantview.telegram.org/api/{}".format(contest), cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templNumber, rules=rules, random_id=random_id))
         final = r.json()
 
     random_id = final["random_id"]
@@ -73,8 +89,8 @@ def checkDiff(cookies, url, t1, t2):
 
 parser = argparse.ArgumentParser(description='Get pretty HTML diff between two IV templates.')
 parser.add_argument('url', metavar='url', type=str, help='original page url to diff')
-parser.add_argument('t1', metavar='first_template', type=int, help='first template number')
-parser.add_argument('t2', metavar='second_template', type=int, help='second template number')
+parser.add_argument('t1', metavar='first_template', type=str, help='first template number OR template file path')
+parser.add_argument('t2', metavar='second_template', type=str, help='second template number OR template file path')
 parser.add_argument('--cookies', '-c', help='path to file with cookies (default is cookies.txt)', nargs='?', default="cookies.txt")
 
 args = parser.parse_args()

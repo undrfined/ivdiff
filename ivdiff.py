@@ -65,7 +65,7 @@ def getHtml(domain, cookies, url, template):
                 hash = re.search("{}\\?hash=(.*?)\",".format(contest), str(r.content)).group(1)
                 logging.info("new hash={}".format(hash))
                 total_fail += 1
-                if total_fail >= 2:
+                if total_fail >= 7:
                     logging.error("naaah fuck this i'm out {}".format(url))
                     return None
 
@@ -79,18 +79,26 @@ def getHtml(domain, cookies, url, template):
         logging.error("NESTED_ELEMENT_NOT_SUPPORTED in {}".format(url))
 
     htmlparser = etree.HTMLParser(remove_blank_text=True)
-    tree = etree.parse(StringIO(str(r.content)), htmlparser)
+    tree = etree.parse(StringIO(str(r.content.decode("utf-8"))), htmlparser)
 
     logging.info("-- FINISHED --")
 
     return (d + "?url=" + url, tree)
 
 
-def compare(s, f):
+def compare(f, s):
     # You can remove elements before diff if you want to
     #
     # for bad in s.xpath("//h6[@data-block=\"Kicker\"]"):
     #     bad.getparent().remove(bad)
+    #for bad in f.xpath("//footer[last()]"):
+    #    bad.getparent().remove(bad)
+
+    for img in f.xpath("//img"):
+        del img.attrib["src"]
+    for img in s.xpath("//img"):
+        del img.attrib["src"]
+
     pass
 
 
@@ -116,7 +124,7 @@ def checkDiff(cookies, url, t1, t2):
     f1 = getHtml(domain, cookies, url, t1)
     s1 = getHtml(domain, cookies, url, t2)
     if f1 is None or s1 is None:
-        return "roflanEbalo"
+        return "FAIL: " + url
     f = f1[1]
     s = s1[1]
 
@@ -129,7 +137,7 @@ def checkDiff(cookies, url, t1, t2):
     if len(a2) == 0:
         a2 = s.xpath("//section[@class=\"message\"]")
 
-    diff = difflib.HtmlDiff(wrapcolumn=120).make_file(etree.tostring(a1[0], pretty_print=True).decode("utf-8").split("\n"), etree.tostring(a2[0], pretty_print=True).decode("utf-8").split("\n"))
+    diff = difflib.HtmlDiff(wrapcolumn=120).make_file(etree.tostring(a1[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"), etree.tostring(a2[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"))
     htmlparser = etree.HTMLParser(remove_blank_text=True)
     tree = etree.parse(StringIO(str(diff)), htmlparser)
 
@@ -143,6 +151,7 @@ def checkDiff(cookies, url, t1, t2):
     tree.xpath("//body")[0].addprevious(etree.Element("br"))
     tree.xpath("//body")[0].addprevious(link2)
     tree.xpath("//body")[0].addprevious(etree.Element("br"))
+    tree.xpath("//body")[0].addprevious(etree.Element("input", **{"value": url}))
     tree.xpath("//body")[0].addprevious(etree.Element("br"))
 
     for bad in tree.xpath("//table[@summary='Legends']"):

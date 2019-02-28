@@ -2,7 +2,6 @@ from ivdiff import checkDiff
 from multiprocessing import Pool
 import argparse
 from functools import partial
-import signal
 
 
 def check(cookies, t1, t2, i):
@@ -21,9 +20,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
     p = Pool(args.poolsize)
-    signal.signal(signal.SIGINT, original_sigint_handler)
 
     f = list(open(args.file, "r"))
     func = partial(check, args.cookies, args.t1, args.t2)

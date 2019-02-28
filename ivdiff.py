@@ -9,6 +9,7 @@ import os
 import argparse
 from urllib.parse import urlparse
 from http.cookies import SimpleCookie
+from hashlib import md5
 
 logging.basicConfig(filename="ivdiff.log", level=logging.INFO)
 
@@ -42,6 +43,7 @@ def getHtml(domain, cookies, url, template):
     logging.info("random_id={}".format(random_id))
 
     final = ""
+    fails = 0
     while "result_doc_url" not in final:
         logging.info("trying again... {}".format(final))
         r = requests.post("https://instantview.telegram.org/api/{}".format(contest), cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templNumber, rules=rules, random_id=random_id))
@@ -53,6 +55,13 @@ def getHtml(domain, cookies, url, template):
             r = requests.post("https://instantview.telegram.org/api/{}".format(contest), cookies=cookies, params=dict(hash=hash), data=dict(url=url, section=domain, method="processByRules", rules_id=templNumber, rules=rules, random_id=""))
             random_id = r.json()["random_id"]
             logging.info("new random_id={}".format(random_id))
+            fails += 1
+            if fails >= 5:
+                logging.error("uhhh trying another hash maybe")
+                fails = 0
+                r = requests.get(d, cookies=cookies, params=dict(url=url))
+                hash = re.search("{}\\?hash=(.*?)\",".format(contest), str(r.content)).group(1)
+                logging.info("new hash={}".format(hash))
 
     random_id = final["random_id"]
     u = final["result_doc_url"]
@@ -135,7 +144,10 @@ def checkDiff(cookies, url, t1, t2):
     # ДУМОТЬ ВСО ЕСЧО ВПАДЛУ
     # ХТО ЗАРЖАВ СТАВ РОФЛАН ЇБАЛО
     if "class=\"diff_add\"" in final or "class=\"diff_chg\"" in final or "class=\"diff_sub\"" in final:
-        fn = "gen/diff_{}_{}_{}.html".format(domain, t1, t2)
+        md = md5()
+        md.update(url.encode('utf-8'))
+
+        fn = "gen/{}/{}_{}_{}.html".format(domain, t1, t2, str(md.hexdigest()))
         try:
             os.makedirs(os.path.dirname(fn))
         except Exception:

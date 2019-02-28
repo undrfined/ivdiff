@@ -4,11 +4,15 @@ from urllib.parse import urlparse
 from multiprocessing import Pool
 from scrapy.crawler import CrawlerProcess
 import argparse
+from scrapy.utils.project import get_project_settings
+import os
 
 
 class IvSpider(scrapy.Spider):
     name = 'IvSpider'
     dupl = []
+    total = 0
+    parsed = 0
 
     def __init__(self, domain="", cookies="cookies.txt", poolsize=5, **kwargs):
         if not domain.startswith("http"):
@@ -24,25 +28,40 @@ class IvSpider(scrapy.Spider):
         self.pool = Pool(5)
 
         self.cookies = cookies
+        fn = "gen/{}/parsed.txt".format(d)
+        try:
+            os.makedirs(os.path.dirname(fn))
+        except Exception:
+            pass
 
+        try:
+            self.dupl = list(open(fn, "r"))
+        except Exception:
+            pass
+        self.dupl = list(map(lambda s: s.strip(), self.dupl))
+        print(self.dupl)
+        self.file = open(fn, "a")
         super().__init__(**kwargs)
 
+    def callback(self, roflan):
+        self.parsed += 1
+        print("{0:.2f}% [{1} / {2}] {3}".format(self.parsed / self.total * 100, self.parsed, self.total, roflan))
+        self.file.write("{}\n".format(roflan))
+
     def addToPool(self, url):
-        self.pool.apply_async(checkDiff, [self.cookies, url, self.t1, self.t2])
+        self.total += 1
+        self.pool.apply_async(checkDiff, [self.cookies, url, self.t1, self.t2], callback=self.callback)
         pass
 
     def parse(self, response):
         for i in response.xpath("//a/@href"):
             z = i.extract()
             yield response.follow(i.extract(), self.parse)
-
             if z.startswith("//"):
                 z = "http://" + self.allowed_domains[0] + z
             if z.startswith("/"):
                 z = "http://" + self.allowed_domains[0] + z
             if not z.startswith("http"):
-                continue
-            if self.allowed_domains[0] not in i.extract():
                 continue
             if z in self.dupl:
                 continue
@@ -60,9 +79,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    process = CrawlerProcess({
-        'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
-    })
+    settings = get_project_settings()
+    settings['LOG_LEVEL'] = 'INFO'
+    settings["USER_AGENT"] = "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36"
+
+    process = CrawlerProcess(settings)
 
     process.crawl(IvSpider, domain=args.domain, t1=args.t1, t2=args.t2, poolsize=args.poolsize)
     process.start()

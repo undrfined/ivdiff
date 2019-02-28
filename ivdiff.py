@@ -30,7 +30,7 @@ def getHtml(domain, cookies, url, template):
         d = "https://instantview.telegram.org/{}/{}".format(contest, domain)
     else:
         d = "https://instantview.telegram.org/{}/{}/template{}".format(contest, domain, templNumber)
-    logging.info("-- Getting html for {} --".format(url))
+    logging.info("-- Getting html for {} --".format(url.encode("ascii")))
     r = requests.get(d, cookies=cookies, params=dict(url=url))
     cookies = dict(list(cookies.items()) + list(r.cookies.get_dict().items()))
 

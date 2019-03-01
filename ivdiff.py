@@ -8,6 +8,8 @@ import webbrowser
 import os
 import argparse
 from urllib.parse import urlparse
+from urllib.parse import urlencode
+from urllib.parse import urljoin
 from http.cookies import SimpleCookie
 from hashlib import md5
 
@@ -94,10 +96,10 @@ def compare(f, s):
     #for bad in f.xpath("//footer[last()]"):
     #    bad.getparent().remove(bad)
 
-    for img in f.xpath("//img"):
-        del img.attrib["src"]
-    for img in s.xpath("//img"):
-        del img.attrib["src"]
+    #for img in f.xpath("//img"):
+    #    del img.attrib["src"]
+    #for img in s.xpath("//img"):
+    #    del img.attrib["src"]
 
     pass
 
@@ -137,7 +139,7 @@ def checkDiff(cookies, url, t1, t2):
     if len(a2) == 0:
         a2 = s.xpath("//section[@class=\"message\"]")
 
-    diff = difflib.HtmlDiff(wrapcolumn=120).make_file(etree.tostring(a1[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"), etree.tostring(a2[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"))
+    diff = difflib.HtmlDiff(wrapcolumn=90).make_file(etree.tostring(a1[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"), etree.tostring(a2[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"))
     htmlparser = etree.HTMLParser(remove_blank_text=True)
     tree = etree.parse(StringIO(str(diff)), htmlparser)
 
@@ -147,12 +149,32 @@ def checkDiff(cookies, url, t1, t2):
     link2 = etree.Element("a", **{"href": s1[0]})
     link2.text = "Template {}".format(t2)
 
+    teleport = etree.Element("a", **{"href": "#flex"})
+    teleport.text = "go to frames"
+
+    tree.xpath("//body")[0].addprevious(teleport)
+    tree.xpath("//body")[0].addprevious(etree.Element("br"))
     tree.xpath("//body")[0].addprevious(link1)
     tree.xpath("//body")[0].addprevious(etree.Element("br"))
     tree.xpath("//body")[0].addprevious(link2)
     tree.xpath("//body")[0].addprevious(etree.Element("br"))
     tree.xpath("//body")[0].addprevious(etree.Element("input", **{"value": url}))
     tree.xpath("//body")[0].addprevious(etree.Element("br"))
+
+    frame1_link = f.xpath("//head/link")
+    frame1_link[0].attrib["href"] = "https://ivwebcontent.telegram.org{}".format(frame1_link[0].attrib["href"])
+    frame1_script = f.xpath("//head/script[@src]")
+    frame1_script[0].attrib["src"] = "../../instantview-frame.js"
+
+    tree.xpath("//head")[0].append(frame1_link[0])
+    tree.xpath("//head")[0].append(frame1_script[0])
+
+    htmlparser = etree.HTMLParser(remove_blank_text=True)
+    append = etree.parse(open("append.html", "rb"), htmlparser)
+    frames = append.xpath("//div[contains(@id, 'frame')]")
+    frames[0].append(a1[0])
+    frames[1].append(a2[0])
+    tree.xpath("//body")[0].addnext(append.xpath("//div[contains(@class, 'flex')]")[0])
 
     for bad in tree.xpath("//table[@summary='Legends']"):
         bad.getparent().remove(bad)
@@ -161,6 +183,7 @@ def checkDiff(cookies, url, t1, t2):
     # ДУМОТЬ ВСО ЕСЧО ВПАДЛУ
     # ХТО ЗАРЖАВ СТАВ РОФЛАН ЇБАЛО
     if "class=\"diff_add\"" in final or "class=\"diff_chg\"" in final or "class=\"diff_sub\"" in final:
+        print(f"diff {url}")
         md = md5()
         md.update(url.encode('utf-8'))
 
@@ -173,6 +196,9 @@ def checkDiff(cookies, url, t1, t2):
         file.write(final)
         file.close()
         webbrowser.open_new_tab("file:///{}/{}".format(os.getcwd(), fn))
+    else:
+        print(f"no diff {url}")
+
     return url
 
 

@@ -6,6 +6,7 @@ from scrapy.crawler import CrawlerProcess
 import argparse
 from scrapy.utils.project import get_project_settings
 import os
+from urllib.parse import urljoin
 
 
 class IvSpider(scrapy.Spider):
@@ -25,7 +26,7 @@ class IvSpider(scrapy.Spider):
 
         self.allowed_domains = [d]
 
-        self.pool = Pool(5)
+        self.pool = Pool(poolsize)
 
         self.cookies = cookies
         fn = "gen/{}/parsed.txt".format(d)
@@ -56,13 +57,15 @@ class IvSpider(scrapy.Spider):
     def parse(self, response):
         for i in response.xpath("//a/@href"):
             z = i.extract()
-            yield response.follow(i.extract(), self.parse)
-            if z.startswith("//"):
-                z = "http://" + self.allowed_domains[0] + z
-            if z.startswith("/"):
-                z = "http://" + self.allowed_domains[0] + z
-            if not z.startswith("http"):
+            if z.endswith(".jpg") or z.endswith(".png") or z.endswith(".gif") or z.endswith(".jpeg"):
                 continue
+            z = urljoin(response.url, z.strip())
+            domain = urlparse(z).netloc
+            if domain.startswith("www."):
+                domain = domain[4:]
+            if not domain.startswith(self.allowed_domains[0]):
+                continue
+            yield response.follow(z, self.parse)
             if z in self.dupl:
                 continue
             self.dupl.append(z)

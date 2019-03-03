@@ -118,7 +118,10 @@ def getHtml(domain, cookies, url, template):
         logging.error("NESTED_ELEMENT_NOT_SUPPORTED in {}".format(url))
 
     tree = etree.parse(StringIO(str(r.content.decode("utf-8"))), htmlparser)
-    preview_html_tree = etree.parse(StringIO(preview_html), htmlparser)
+    if preview_html is not False:
+        preview_html_tree = etree.parse(StringIO(preview_html), htmlparser)
+    else:
+        preview_html_tree = None
 
     logging.info("-- FINISHED --")
     return (d + "?url=" + url, tree, preview_html_tree)
@@ -189,7 +192,8 @@ def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
         copy1 = copy.deepcopy(a1)
         for img in copy1[0].xpath("//img"):
             del img.attrib["src"]
-        copy1[0].append(copy.deepcopy(preview_html_first).xpath("//div[@class='page-preview']")[0])
+        if preview_html_first is not None:
+            copy1[0].append(copy.deepcopy(preview_html_first).xpath("//div[@class='page-preview']")[0])
 
     a2 = s.xpath("//article")
     if len(a2) == 0:
@@ -199,7 +203,8 @@ def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
         copy2 = copy.deepcopy(a2)
         for img in copy2[0].xpath("//img"):
             del img.attrib["src"]
-        copy2[0].append(copy.deepcopy(preview_html_second).xpath("//div[@class='page-preview']")[0])
+        if preview_html_second is not None:
+            copy2[0].append(copy.deepcopy(preview_html_second).xpath("//div[@class='page-preview']")[0])
 
     diff = difflib.HtmlDiff(wrapcolumn=90).make_file(etree.tostring(copy1[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"), etree.tostring(copy2[0], pretty_print=True, encoding='UTF-8').decode("utf-8").split("\n"))
     htmlparser = etree.HTMLParser(remove_blank_text=True)
@@ -221,8 +226,10 @@ def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
     frames[1].append(a2[0])
 
     previews = append.xpath("//div[contains(@id, 'preview')]")
-    previews[0].append(preview_html_first.xpath("//div[@class='page-preview']")[0])
-    previews[1].append(preview_html_second.xpath("//div[@class='page-preview']")[0])
+    if preview_html_first is not None:
+        previews[0].append(preview_html_first.xpath("//div[@class='page-preview']")[0])
+    if preview_html_second is not None:
+        previews[1].append(preview_html_second.xpath("//div[@class='page-preview']")[0])
 
     first_link = append.xpath("//a[@id='first_template']")[0]
     first_link.attrib["href"] = f1[0]

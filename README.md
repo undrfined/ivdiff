@@ -23,11 +23,12 @@ get diff for one specific page
 usage:
 
 ```
-py ivdiff.py <Template> <Template> <URL> [-c <cookies file>]
+py ivdiff.py <Template> <Template> <URL> [-c <cookies file>] [-b <browser>]
 ```
 
 ...where `<Template>` is a template number if it was submitted to contest (for example `45`) or filename with the template code(for example `file.xpath`). **Please do a backup of your code before using filename as one of the templates**
 `<URL>` is an URL to diff.
+`<browser>` is a browser name (according to [docs](https://docs.python.org/3/library/webbrowser.html)) or path to program to open file
 
 ## batchdiff.py
 
@@ -48,11 +49,11 @@ collect all the URLs automatically and get diff for all of them
 usage:
 
 ```
-py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>]
+py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>] [-b <browser>]
 ```
 
 ...where `<domain>` is a domain name (for example `5minutes.rtl.lu`)
-
+`<browser>` is a browser name (according to [docs](https://docs.python.org/3/library/webbrowser.html)) or path to program to open file
 
 # russian
 
@@ -81,11 +82,12 @@ py auth.py +38093******6
 юзать вот так:
 
 ```
-py ivdiff.py <Template> <Template> <URL> [-c <cookies file>]
+py ivdiff.py <Template> <Template> <URL> [-c <cookies file>] [-b <browser>]
 ```
 
 ...где `<Template>` это номер опубликованого темплейта (например `45`) или название файла с исходником(например `file.xpath`). **Обязательно делайте бекап перед использованием файла исходника так как оно перезапишет ваш текущий код**
 `<URL>` это ссылка на страницу
+`<browser>` это название браузера (из [документации](https://docs.python.org/3/library/webbrowser.html)) или путь к программе которая откроет результат
 
 ## batchdiff.py
 
@@ -106,7 +108,8 @@ py batchdiff.py <Template> <Template> <List of URLs> [-c <cookies file>] [-p <po
 юзать вот так:
 
 ```
-py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>]
+py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>] [-b <browser>]
 ```
 
 ...где `<domain>` это домен (например `5minutes.rtl.lu`)
+`<browser>` это название браузера (из [документации](https://docs.python.org/3/library/webbrowser.html)) или путь к программе которая откроет результат

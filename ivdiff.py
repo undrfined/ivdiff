@@ -110,6 +110,9 @@ def getHtml(domain, cookies, url, template):
 
     logging.info("loading page {}".format(u))
     r = requests.get(u, verify=verify, cookies=cookies)
+    if r.status_code != 200:
+        print("404, trying again")
+        return None
 
     if "NESTED_ELEMENT_NOT_SUPPORTED" in str(r.content):
         logging.error("NESTED_ELEMENT_NOT_SUPPORTED in {}".format(url))

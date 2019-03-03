@@ -1,16 +1,158 @@
-<div id="flex" class="flex">
-   <style>
-      .flex {
-        display: flex;
-        flex-direction: row;
-      }
+<main>
+  <div class="flex">
+    <a class="template_button" class="template_button" id="first_template"></a>
+    <input class="template_input">
+    <a class="frames" href="#flex">go to frames</a>
+      
+    <a class="template_button" id="second_template"></a>
+  </div>
+  <div>
+    <div class="preview flex">
+      <div id="preview1" class="element"></div>
+      <div id="preview2" class="element"></div>
+    </div>
+    <div id="flex" class="flex">
+     <style>
+        .template_button {
+          flex-grow: 2;
+          text-align: center;
+          background-color: #00acc1;
+          border: none;
+          color: white;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 32px;
+          transition-duration: 0.4s;
+          font-family: monospace;
+        }
 
-      .element {
-        flex-grow: 1;
-        flex-basis: 0;
-        border: 1px solid black;
-      }
-   </style>
-   <div id="frame1" class="element"></div>
-   <div id="frame2" class="element"></div>
-</div>
+        .frames:hover, .template_input:hover, .template_button:hover {
+          box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+        }
+
+        .template_input {
+          flex-grow: 1;
+          font-size: 20px;
+          font-family: monospace;
+          transition-duration: 0.4s;
+        }
+
+        .frames {
+          flex-grow: 1;
+          text-align: center;
+          background-color: #e7e7e7;
+          border: none;
+          color: black;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 32px;
+          transition-duration: 0.4s;
+          font-family: monospace;
+        }
+
+        .flex {
+          display: flex;
+          flex-direction: row;
+        }
+
+        .element {
+          flex-grow: 1;
+          flex-basis: 0;
+          border: 1px solid black;
+          min-width: 0;
+        }
+
+        .page-preview {
+          margin: 0 18px 18px;
+          padding-left: 12px;
+          border-left: 2px solid #3ca7fe;
+          font-size: 12px;
+          line-height: 15px;
+          max-width: 300px;
+        }
+        .page-preview-thumbed {
+          display: inline-block;
+          position: relative;
+          max-width: 350px;
+        }
+        .page-preview-thumb {
+          border-radius: 4px;
+          background: no-repeat center;
+          background-size: cover;
+          margin-left: 10px;
+          position: absolute;
+          right: 0;
+          top: 0;
+          bottom: 0;
+        }
+        .page-preview-media {
+          margin: 7px 0 0;
+          background: no-repeat center;
+          background-size: cover;
+          text-align: center;
+          max-height: 170px;
+          overflow: hidden;
+          border-radius: 4px;
+        }
+        .page-preview-media img,
+        .page-preview-media video {
+          max-width: 100%;
+          vertical-align: top;
+        }
+        .page-preview-media img {
+          max-height: 170px;
+          visibility: hidden;
+        }
+        .page-preview-content {
+          display: block;
+          display: -webkit-box;
+          max-height: 64px;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: pre-wrap;
+        }
+        .page-preview-site-name {
+          font-weight: bold;
+          line-height: 19px;
+          color: #0b8bed;
+        }
+        .page-preview-thumbed .page-preview-site-name {
+          margin-right: 98px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+        .page-preview-thumbed .page-preview-content {
+          max-height: 79px;
+          -webkit-line-clamp: 5;
+          margin-right: 98px;
+        }
+        .page-preview-content br {
+          line-height: 19px;
+        }
+        .page-preview-button {
+          padding: 4px 8px;
+          margin: 7px 0 0;
+          background: transparent;
+          color: #0b8bed;
+          border: 1px solid #3ca7fe;
+          border-radius: 4px;
+          outline: none;
+          width: 100%;
+        }
+        .page-preview-button .glyphicon {
+          margin-left: -2px;
+        }
+
+       </style>
+       <div id="frame1" class="element"></div>
+       <div id="frame2" class="element"></div>
+    </div>
+  </div>
+</main>

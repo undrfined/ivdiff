@@ -55,6 +55,17 @@ py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>]
 ...where `<domain>` is a domain name (for example `5minutes.rtl.lu`)
 `<browser>` is a browser name (according to [docs](https://docs.python.org/3/library/webbrowser.html)) or path to program to open file
 
+## checked.py
+
+press "Mark as checked" for all the links in the domain.
+
+usage:
+
+```
+py checked.py <domain> [-c <cookies file>]
+```
+**Please do a backup of your code before using this**
+
 # russian
 
 # ivdiff
@@ -113,3 +124,14 @@ py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>]
 
 ...где `<domain>` это домен (например `5minutes.rtl.lu`)
 `<browser>` это название браузера (из [документации](https://docs.python.org/3/library/webbrowser.html)) или путь к программе которая откроет результат
+
+## checked.py
+
+прожимает "Mark as checked" на всех ссылках домена.
+
+юзать вот так:
+
+```
+py checked.py <domain> [-c <cookies file>]
+```
+**Обязательно делайте бекап перед использованием этой фичи**

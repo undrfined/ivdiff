@@ -286,5 +286,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     for i in args.url:
         cookies = parseCookies(args.cookies)
-        for iz in range(0, 100):
-            checkDiff(args.nobrowser, cookies, i, args.t1, args.t2, args.browser)
+        checkDiff(args.nobrowser, cookies, i, args.t1, args.t2, args.browser)

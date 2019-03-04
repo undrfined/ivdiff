@@ -8,8 +8,11 @@ def auth(phone, file):
     d = "https://instantview.telegram.org/"
     r = requests.get(d)
     cookies = r.cookies
-
-    r = requests.post(d + "auth/request", cookies=cookies, data={"phone": phone}, headers={"X-Requested-With": "XMLHttpRequest"})
+    r = requests.post(d + "auth/request", cookies=cookies, data={"phone": phone}, headers={
+        "X-Requested-With": "XMLHttpRequest",
+        # BEZ PALEVA ( ͡° ͜ʖ ͡°)
+        "User-Agent": "Mozilla/5.0 (PlayStation 4 2.50) AppleWebKit/537.73 (KHTML, like Gecko)"
+    })
     try:
         temp_session = r.json()["temp_session"]
     except Exception:

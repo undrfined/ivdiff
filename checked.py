@@ -10,7 +10,7 @@ import json
 
 
 htmlparser = etree.HTMLParser(remove_blank_text=True)
-verify = False
+verify = True
 if not verify:
     urllib3.disable_warnings()
 

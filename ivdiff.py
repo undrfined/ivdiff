@@ -100,7 +100,9 @@ def getHtml(domain, cookies, url, template):
                 # random_id = r.json()["random_id"]
                 # logging.info("new random_id={}".format(random_id))
         else:
-            print(final)
+            pass
+            # This is only available for templates from "my" section
+            # print(final)
             # tree = etree.parse(final["status"], htmlparser)
             # print("Status: " + tree.xpath("//text()")[0])
 

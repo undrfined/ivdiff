@@ -41,12 +41,11 @@ def getHashAndRules(domain, cookies):
 
     r = requests.get(d, headers=headers, verify=verify, cookies=cookies, params=dict(url=domain))
     hash = re.search("my\\?hash=(.*?)\",", str(r.content)).group(1)
-    rules = json.loads(re.search("initWorkspace\\(\".*?\",(.*?)\\);", str(r.content)).group(1).replace("\\\\", "\\"))
-    print(rules["rules"])
+    rules = json.loads(re.search("initWorkspace\\(\".*?\",(.*?)\\);", str(r.content.decode("utf8"))).group(1))
     return (rules["rules"], hash)
 
 
-def getAll(domain, cookies):
+def checkAll(domain, cookies):
     rules, hash = getHashAndRules(domain, cookies)
     r = requests.post("https://instantview.telegram.org/api/my", headers=headers, verify=verify, cookies=cookies, params=dict(hash=hash), data=dict(url=domain, section=domain, method="processByRules", rules_id="", rules=rules, random_id=""))
     rid = r.json()["random_id"]
@@ -71,4 +70,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     cookies = ivdiff.parseCookies(args.cookies)
-    getAll(args.domain, cookies)
+    checkAll(args.domain, cookies)

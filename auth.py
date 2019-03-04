@@ -1,5 +1,7 @@
 import requests
 import argparse
+import ivdiff
+import time
 
 
 def auth(phone, file):
@@ -18,7 +20,19 @@ def auth(phone, file):
     while r.content != b"true":
         r = requests.post(d + "auth/login", cookies=cookies, data={"temp_session": temp_session}, headers={"X-Requested-With": "XMLHttpRequest"})
     cookies = requests.cookies.merge_cookies(cookies, r.cookies).get_dict()
-    print("success!")
+    print("success! getting stel_ivs...")
+
+    stel_ivs = None
+    while stel_ivs is None:
+        print("getting stel_ivs...")
+        # Domain and url can be actually anything, just make sure it exists in the contest
+        r = ivdiff.getHtml("5minutes.rtl.lu", cookies, "5minutes.rtl.lu", 1)
+        if r is not None and "stel_ivs" in r[3]:
+            stel_ivs = r[3]
+        else:
+            time.sleep(10)
+    print(f"success! {stel_ivs}")
+    cookies = stel_ivs
 
     with open(file, 'wb') as f:
         for i, v in cookies.items():

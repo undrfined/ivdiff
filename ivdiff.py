@@ -111,7 +111,7 @@ def getHtml(domain, cookies, url, template):
     logging.info("loading page {}".format(u))
     r = requests.get(u, verify=verify, cookies=cookies)
     if r.status_code != 200:
-        print("404, trying again")
+        print(f"{r.status_code}, trying again {url}")
         return None
 
     if "NESTED_ELEMENT_NOT_SUPPORTED" in str(r.content):
@@ -124,7 +124,7 @@ def getHtml(domain, cookies, url, template):
         preview_html_tree = None
 
     logging.info("-- FINISHED --")
-    return (d + "?url=" + url, tree, preview_html_tree)
+    return (d + "?url=" + url, tree, preview_html_tree, cookies)
 
 
 def compare(f, s):
@@ -144,7 +144,7 @@ def compare(f, s):
 
 
 def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
-    # print("checkDiff")
+    # print(f"checkDiff {cookies}")
     if not url.startswith("http"):
         url = "http://" + url
 
@@ -175,7 +175,7 @@ def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
         s1 = getHtml(domain, cookies[cookie], url, t2)
 
     if f1 is None or s1 is None:
-        return (url, -1)
+        return (url, -1, cookies)
     f = f1[1]
     s = s1[1]
     preview_html_first = f1[2]
@@ -265,9 +265,9 @@ def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
         if not nobrowser:
             browser = webbrowser if browser == "" else webbrowser.get(browser)
             browser.open_new_tab("file:///{}/{}".format(os.getcwd(), fn))
-        return (url, 1)
+        return (url, 1, cookies)
     else:
-        return (url, 0)
+        return (url, 0, cookies)
 
 
 def parseCookies(cookiesFile):

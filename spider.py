@@ -19,7 +19,7 @@ class IvSpider(scrapy.spiders.CrawlSpider):
     parsed = 0
     have_diff = 0
 
-    def __init__(self, nobrowser=False, browser="", domain="", cookies="cookies.txt", poolsize=5, **kwargs):
+    def __init__(self, ignore="", nobrowser=False, browser="", domain="", cookies="cookies.txt", poolsize=5, **kwargs):
         if not domain.startswith("http"):
             domain = "http://" + domain
         self.start_urls = [domain]
@@ -31,9 +31,10 @@ class IvSpider(scrapy.spiders.CrawlSpider):
         self.allowed_domains = [d]
         self.browser = browser
         self.nobrowser = nobrowser
+        self.ignore = ignore
 
         self.pool = Pool(poolsize)
-        self.rules = [Rule(LinkExtractor(allow=(), allow_domains=self.allowed_domains, deny=(), deny_domains=()), callback='parse_item', follow=True)]
+        self.rules = [Rule(LinkExtractor(allow=(), allow_domains=self.allowed_domains, deny=(ignore), deny_domains=()), callback='parse_item', follow=True)]
 
         self.cookies = ivdiff.parseCookies(cookies)
         fn = "gen/{}/url_list.json".format(d)
@@ -90,6 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('--poolsize', '-p', help='concurrent connections count(default=5)', type=int, nargs='?', default=5)
     parser.add_argument('--nobrowser', '-n', help='do not open browser when diff is found', action='store_true')
     parser.add_argument('--browser', '-b', help='browser or path to program to open diff', nargs='?', default="")
+    parser.add_argument('--ignore', '-i', help='regex with links to ignore (file or string)', nargs='+')
 
     args = parser.parse_args()
 
@@ -99,5 +101,14 @@ if __name__ == '__main__':
 
     process = CrawlerProcess(settings)
 
-    process.crawl(IvSpider, nobrowser=args.nobrowser, browser=args.browser, domain=args.domain, t1=args.t1, t2=args.t2, poolsize=args.poolsize)
+    ignore = ""
+    try:
+        c = open(args.ignore[0], "r")
+        ignore = c.read()
+        ignore = ignore.split("\n")
+        c.close()
+    except Exception as ex:
+        ignore = args.ignore
+    print(f"ignore: {ignore}")
+    process.crawl(IvSpider, ignore=ignore, nobrowser=args.nobrowser, browser=args.browser, domain=args.domain, t1=args.t1, t2=args.t2, poolsize=args.poolsize)
     process.start()

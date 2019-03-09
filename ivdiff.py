@@ -117,7 +117,7 @@ def getHtml(domain, cookies, url, template):
         return None
 
     if "NESTED_ELEMENT_NOT_SUPPORTED" in str(r.content):
-        logging.error("NESTED_ELEMENT_NOT_SUPPORTED in {}".format(url))
+        logging.error("NESTED_ELEMENT_NOT_SUPPORTED in {}".format(url.encode("ascii")))
 
     tree = etree.parse(StringIO(str(r.content.decode("utf-8"))), htmlparser)
     if preview_html is not False:
@@ -190,6 +190,7 @@ def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
     if len(a1) == 0:
         a1 = f.xpath("//section[@class=\"message\"]")
         copy1 = copy.deepcopy(a1)
+        preview_html_first = None
     else:
         copy1 = copy.deepcopy(a1)
         for img in copy1[0].xpath("//img"):
@@ -201,6 +202,7 @@ def checkDiff(nobrowser, cookies, url, t1, t2, browser=""):
     if len(a2) == 0:
         a2 = s.xpath("//section[@class=\"message\"]")
         copy2 = copy.deepcopy(a2)
+        preview_html_second = None
     else:
         copy2 = copy.deepcopy(a2)
         for img in copy2[0].xpath("//img"):

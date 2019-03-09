@@ -36,6 +36,7 @@ class IvSpider(scrapy.spiders.CrawlSpider):
         self.pool = Pool(poolsize)
         self.rules = [Rule(LinkExtractor(allow=(), allow_domains=self.allowed_domains, deny=(ignore), deny_domains=()), callback='parse_item', follow=True)]
 
+        print(cookies)
         self.cookies = ivdiff.parseCookies(cookies)
         fn = "gen/{}/url_list.json".format(d)
         try:
@@ -109,6 +110,7 @@ if __name__ == '__main__':
         c.close()
     except Exception as ex:
         ignore = args.ignore
+    print(args.cookies)
     print(f"ignore: {ignore}")
-    process.crawl(IvSpider, ignore=ignore, nobrowser=args.nobrowser, browser=args.browser, domain=args.domain, t1=args.t1, t2=args.t2, poolsize=args.poolsize)
+    process.crawl(IvSpider, ignore=ignore, cookies=args.cookies, nobrowser=args.nobrowser, browser=args.browser, domain=args.domain, t1=args.t1, t2=args.t2, poolsize=args.poolsize)
     process.start()

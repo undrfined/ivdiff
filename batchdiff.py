@@ -2,6 +2,7 @@ import ivdiff
 from multiprocessing import Pool
 import argparse
 from functools import partial
+import json
 
 
 def check(nobrowser, browser, cookies, t1, t2, i):
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     p = Pool(args.poolsize)
     cookies = ivdiff.parseCookies(args.cookies)
 
-    f = list(open(args.file, "r"))
+    f = list(json.loads(open(args.file, "r").read()).keys())
     func = partial(check, args.nobrowser, args.browser, cookies, args.t1, args.t2)
     print("Total: {}".format(len(f)))
     z = 0

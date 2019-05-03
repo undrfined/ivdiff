@@ -1,14 +1,27 @@
 import ivdiff
 from multiprocessing import Pool
+from multiprocessing import Event
 import argparse
-from functools import partial
 import json
+import ctypes
+import readchar
 
 
-def check(nobrowser, browser, cookies, t1, t2, i):
-    n = i.rstrip("\n\r").rstrip("\n")
-    print("Trying {0}".format(n))
-    ivdiff.checkDiff(nobrowser, cookies, n, t1, t2, browser)
+parsed = 0
+crawled = 0
+have_diff = 0
+olds = 0
+
+
+def callback(roflan):
+    global parsed, have_diff
+    parsed += 1
+    if roflan is None or roflan[1] == -1:
+        print(f"an error occured for url {roflan[0]}")
+        return
+    if roflan[1] == 1:
+        have_diff += 1
+    ctypes.windll.kernel32.SetConsoleTitleW(f"{(parsed / crawled * 100):.2f}% [{parsed} / crawled {crawled}] (w/ diff {have_diff}, old {olds}) | diffed {roflan[0]}")
 
 
 if __name__ == '__main__':
@@ -23,11 +36,32 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    p = Pool(args.poolsize)
+    event = Event()
+    p = Pool(args.poolsize, ivdiff.setup, (event,))
+    event.set()
     cookies = ivdiff.parseCookies(args.cookies)
 
-    f = list(json.loads(open(args.file, "r").read()).keys())
-    func = partial(check, args.nobrowser, args.browser, cookies, args.t1, args.t2)
+    f = list(json.loads(open(args.file, "r").read()).values())[::-1]
     print("Total: {}".format(len(f)))
+    crawled = len(f)
     z = 0
-    p.map(func, f)
+    for i in f:
+        p.apply_async(ivdiff.checkDiff, [args.nobrowser, cookies, i, args.t1, args.t2, args.browser], callback=callback)
+    pause = False
+    while True:
+        e = readchar.readchar()
+        if e == b'q':
+            print("quit")
+            break
+
+        if e == b'k':
+            p.terminate()
+            print("Killed pool")
+
+        if e == b' ':
+            pause = not pause
+            if pause:
+                event.clear()
+            else:
+                event.set()
+            print(f"pause = {pause}")

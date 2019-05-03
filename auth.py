@@ -29,7 +29,7 @@ def auth(phone, file):
     while stel_ivs is None:
         print("getting stel_ivs...")
         # Domain and url can be actually anything, just make sure it exists in the contest
-        r = ivdiff.getHtml("5minutes.rtl.lu", cookies, "5minutes.rtl.lu", 1)
+        r = ivdiff.getHtml("dotekomanie.cz", cookies, "dotekomanie.cz", 1)
         if r is not None and "stel_ivs" in r[3]:
             stel_ivs = r[3]
         else:

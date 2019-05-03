@@ -26,8 +26,12 @@ usage:
 py ivdiff.py <Template> <Template> <URL> [-c <cookies file>] [-b <browser>]
 ```
 
-...where `<Template>` is a template number if it was submitted to contest (for example `45`) or filename with the template code(for example `file.xpath`). **Please do a backup of your code before using filename as one of the templates**
+...where `<Template>` is a template number if it was submitted to contest (for example `45`) or filename with the template code(for example `file.xpath`). Also you can use `~` to download current code from My Templates section.
+
+**Please do a backup of your code before using filename or `~` as one of the templates**
+
 `<URL>` is an URL to diff.
+
 `<browser>` is a browser name (according to [docs](https://docs.python.org/3/library/webbrowser.html)) or path to program to open file
 
 ## batchdiff.py
@@ -49,11 +53,16 @@ collect all the URLs automatically and get diff for all of them
 usage:
 
 ```
-py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>] [-b <browser>]
+py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>] [-b <browser>] [-w <whitelist>] [-r <restrict xpath>]
 ```
 
 ...where `<domain>` is a domain name (for example `5minutes.rtl.lu`)
+
 `<browser>` is a browser name (according to [docs](https://docs.python.org/3/library/webbrowser.html)) or path to program to open file
+
+`<whitelist>` is a list of xpathes that will be checked in the IV.
+
+`<restrict xpath>` you guessed it, restricts xpathes to be checked in the IV
 
 ## checked.py
 
@@ -66,72 +75,43 @@ py checked.py <domain> [-c <cookies file>]
 ```
 **Please do a backup of your code before using this**
 
-# russian
+## cdo, do and other awesome macros for diff
 
-# ivdiff
+You can use macros inside of your IV template code to diff more easily. There are three types of macros:
 
-скрипты для получения разницы между двумя темплейтами [Instant View](https://instantview.telegram.org)
+- `##do [(alias OR template number) list separated with space OR nothing]`, means "do this block of code for **d**iff **o**nly"
+- `##cdo [(alias OR template number) list separated with space OR nothing]`, means "**c**omment out this block of code for **d**iff **o**nly"
+- `##s [alias] [template number]`, means "**s**et alias to template number"
 
-## Установка
-
-Установите [python3](https://www.python.org/downloads/) и [pip](https://pypi.org/project/pip/).
-Затем в терминале напишите `git clone https://github.com/undrfined/ivdiff; cd ivdiff; pip install -r requirements.txt`.
-
-## Авторизация
-
-Для авторизации запустите скрипт `auth.py`:
+Example usage:
 
 ```
-py auth.py +38093******6
-```
-...ну а дальше по инструкции
+##s undrfined 10 (set alias "undrfined" to template number 10. don't forget to update it tho!)
 
-## ivdiff.py
-
-получить разницу для определенной страницы
-
-юзать вот так:
-
-```
-py ivdiff.py <Template> <Template> <URL> [-c <cookies file>] [-b <browser>]
+##do undrfined Vlad 111 (use this code block only when diffing with undrfined or Vlad or template#111)
+@datetime: //body/time
+published_date: $@
+##? (means else, do this block for every other diff)
+published_date: //meta[@property="date"]/@content
+##
 ```
 
-...где `<Template>` это номер опубликованого темплейта (например `45`) или название файла с исходником(например `file.xpath`). **Обязательно делайте бекап перед использованием файла исходника так как оно перезапишет ваш текущий код**
-`<URL>` это ссылка на страницу
-`<browser>` это название браузера (из [документации](https://docs.python.org/3/library/webbrowser.html)) или путь к программе которая откроет результат
+ivdiff will automatically comment out all the code when you'll start diffing with other template.
 
-## batchdiff.py
+## ivdiff.py#compare()
 
-получить разницу для массива ссылок
+You can use this method if you want to remove some elements that exist in one template but are missing in another. Or you can convert them somehow to match other contestant's template.
 
-юзать вот так:
+## Linux & Mac OS
 
-```
-py batchdiff.py <Template> <Template> <List of URLs> [-c <cookies file>] [-p <pool size>]
-```
+..are not supported because I didn't test it there 🤷‍♂️
 
-...где `<List of URLs>` это название файла со ссылками и `<pool size>` это количество потоков которое вы хотите использовать (стандартно 5)
+# Delayed [issues] service
 
-## spider.py
+Sends issue in the last second. Yeah, shame on me!
+Install `delayed_userscript.js` in the tampermonkey, then run service itself: `py delayed_service.py`.
 
-автоматически собирать все ссылки с домена и смотреть разницу
+## It's not only about evil
 
-юзать вот так:
+Delayed service actually has a lot more useful features. I don't remember any of them though, so that would be a surprise for you :)
 
-```
-py spider.py <Template> <Template> <domain> [-c <cookies file>] [-p <pool size>] [-b <browser>]
-```
-
-...где `<domain>` это домен (например `5minutes.rtl.lu`)
-`<browser>` это название браузера (из [документации](https://docs.python.org/3/library/webbrowser.html)) или путь к программе которая откроет результат
-
-## checked.py
-
-прожимает "Mark as checked" на всех ссылках домена.
-
-юзать вот так:
-
-```
-py checked.py <domain> [-c <cookies file>]
-```
-**Обязательно делайте бекап перед использованием этой фичи**

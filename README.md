@@ -75,6 +75,16 @@ py checked.py <domain> [-c <cookies file>]
 ```
 **Please do a backup of your code before using this**
 
+## backup.py
+
+downloads all the templates
+
+usage:
+
+```
+py backup.py [-c <cookies file>]
+```
+
 ## cdo, do and other awesome macros for diff
 
 You can use macros inside of your IV template code to diff more easily. There are three types of macros:

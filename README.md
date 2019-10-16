@@ -9,10 +9,10 @@ Then run `git clone https://github.com/undrfined/ivdiff; cd ivdiff; pip install 
 
 ## Auth
 
-To authenticate run script `auth.py`:
+To authenticate run script `auth.py` with your phone number that linked to Telegram:
 
 ```
-py auth.py +38093******6
+py auth.py +12345678901
 ```
 ...and you're ready to go.
 
@@ -33,6 +33,7 @@ py ivdiff.py <Template> <Template> <URL> [-c <cookies file>] [-b <browser>]
 `<URL>` is an URL to diff.
 
 `<browser>` is a browser name (according to [docs](https://docs.python.org/3/library/webbrowser.html)) or path to program to open file
+If you want not to open generated files, add `-n or --nobrowser`
 
 ## batchdiff.py
 
